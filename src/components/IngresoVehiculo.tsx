@@ -36,9 +36,9 @@ const IngresoVehiculo = () => {
   }
 
   const handlePatenteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPatente = formatPatente(e.target.value)
-    setPatente(newPatente)
-    setIsValid(patenteRegex.test(newPatente))
+    const formatted = formatPatente(e.target.value)
+    setPatente(formatted)
+    setIsValid(patenteRegex.test(formatted))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
