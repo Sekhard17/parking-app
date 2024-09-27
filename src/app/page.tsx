@@ -72,7 +72,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#0a0f5c] text-blue-100 font-sans">
       <header className="container mx-auto py-6">
         <nav className="flex justify-between items-center">
-          <Image src="/placeholder.svg" alt="Sur Innova Logo" width={150} height={50} />
+          <Image src="/images/sur.png" alt="Sur Innova Logo" width={150} height={50} />
           <Button variant="outline" className="text-blue-100 border-blue-300 hover:bg-blue-800">Contacto</Button>
         </nav>
       </header>
