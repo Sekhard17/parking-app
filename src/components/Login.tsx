@@ -10,40 +10,40 @@ import { User, Lock, LogIn, Car } from "lucide-react"
 import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { useRouter } from 'next/router'; // Cambiado aquí
+import { useRouter } from 'next/router';
 import { supabase } from '@/utils/supabaseClient';
 
 export default function LoginComponent() {
-  const [rut, setRut] = useState('')
-  const [formattedRut, setFormattedRut] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
+  const [rut, setRut] = useState('');
+  const [formattedRut, setFormattedRut] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // Para manejar el rol del usuario
   const router = useRouter(); // Inicialización del enrutador
 
   const formatRut = (value: string) => {
-    const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase()
-    let result = ''
-    
+    const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase();
+    let result = '';
+
     for (let i = 0; i < cleanedValue.length; i++) {
       if (i === cleanedValue.length - 1) {
-        result += '-' + cleanedValue[i]
+        result += '-' + cleanedValue[i];
       } else {
         if ((cleanedValue.length - i) % 3 === 1 && i !== 0) {
-          result += '.'
+          result += '.';
         }
-        result += cleanedValue[i]
+        result += cleanedValue[i];
       }
     }
-    
-    return result
-  }
+
+    return result;
+  };
 
   const handleRutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setRut(value)
-    setFormattedRut(formatRut(value))
-  }
+    const value = e.target.value;
+    setRut(value);
+    setFormattedRut(formatRut(value));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,27 +58,33 @@ export default function LoginComponent() {
 
       if (error || !data) throw new Error('Usuario no encontrado');
 
+      // Aquí puedes validar la contraseña de forma manual
       if (data.contrasena !== password) {
         throw new Error('Contraseña incorrecta');
       }
 
+      setUserRole(data.rol); // Guarda el rol del usuario
       toast.success('Inicio de sesión exitoso');
 
-      if (data.rol === 'Administrador') {
-        router.push('/dashboard-admin');
-      } else {
-        router.push('/menu-operador');
-      }
     } catch (error) {
       console.error('Error al validar el RUT:', error);
       setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
       toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
     }
-  }
+  };
+
+  // Efecto para redirigir según el rol del usuario
+  useEffect(() => {
+    if (userRole === 'Administrador') {
+      router.push('/dashboard-admin');
+    } else if (userRole === 'Operador') {
+      router.push('/menu-operador');
+    }
+  }, [userRole, router]); // Añade `router` a las dependencias
 
   useEffect(() => {
-    setFormattedRut(formatRut(rut))
-  }, [rut])
+    setFormattedRut(formatRut(rut));
+  }, [rut]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200 flex flex-col items-center justify-center p-4">
