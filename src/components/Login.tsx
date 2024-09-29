@@ -10,7 +10,7 @@ import { User, Lock, LogIn, Car } from "lucide-react"
 import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation'; // Importar desde next/navigation
 import { supabase } from '@/utils/supabaseClient';
 
 export default function LoginComponent() {
@@ -58,7 +58,7 @@ export default function LoginComponent() {
 
       if (error || !data) throw new Error('Usuario no encontrado');
 
-      // Aquí puedes validar la contraseña de forma manual
+      // Validar la contraseña
       if (data.contrasena !== password) {
         throw new Error('Contraseña incorrecta');
       }
