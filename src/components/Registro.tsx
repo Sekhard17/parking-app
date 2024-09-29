@@ -103,75 +103,130 @@ export default function RegistroComponent() {
           className="text-4xl font-bold text-blue-800 mb-2"
           initial={{ scale: 0.5 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 0.5, type: "spring" }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 260, damping: 20 }}
         >
-          Registrar Usuario
+          Parking <Car className="inline-block ml-2" />
         </motion.h1>
+        <motion.p
+          className="text-xl text-blue-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          Registro de Nuevo Operador
+        </motion.p>
       </motion.div>
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <h2 className="text-xl font-semibold text-center">Nuevo Usuario</h2>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <Label htmlFor="rut" className="block text-sm font-medium text-gray-700">
-                RUT
-              </Label>
-              <Input 
-                id="rut"
-                value={formattedRut}
-                onChange={handleRutChange}
-                placeholder="Ingrese su RUT"
-                required
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="shadow-xl">
+          <CardHeader className="pb-0">
+            <motion.div
+              initial={{ scale: 0.5 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, type: "spring", stiffness: 260, damping: 20 }}
+              className="flex justify-center mb-6"
+            >
+              <Image
+                src="/images/sur.png"
+                alt="Sur Innova Logo"
+                width={200}
+                height={100}
+                className="h-20 w-auto"
               />
-            </div>
-            <div className="mb-4">
-              <Label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
-                Nombre
-              </Label>
-              <Input 
-                id="nombre"
-                value={nombre}
-                onChange={handleNombreChange}
-                placeholder="Ingrese su nombre"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña
-              </Label>
-              <Input 
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingrese su contraseña"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirmar Contraseña
-              </Label>
-              <Input 
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirme su contraseña"
-                required
-              />
-            </div>
-            <CardFooter className="flex justify-center">
-              <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                Registrar
-              </Button>
-            </CardFooter>
-          </form>
-        </CardContent>
-      </Card>
+            </motion.div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="rut" className="text-sm font-medium text-gray-700">RUT</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="rut"
+                    type="text"
+                    placeholder="Ingrese su RUT"
+                    value={formattedRut}
+                    onChange={handleRutChange}
+                    className="pl-10 w-full"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nombre" className="text-sm font-medium text-gray-700">Nombre Completo</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="nombre"
+                    type="text"
+                    placeholder="Ingrese su nombre completo"
+                    value={nombre}
+                    onChange={handleNombreChange}
+                    className="pl-10 w-full"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">Contraseña</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Ingrese su contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 w-full"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirmar Contraseña</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirme su contraseña"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10 w-full"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Rol</Label>
+                <div className="flex items-center space-x-2 bg-gray-100 p-3 rounded-md">
+                  <Briefcase className="text-gray-400" size={18} />
+                  <span className="text-gray-700">Operador</span>
+                </div>
+              </div>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" /> Registrar Usuario
+                </Button>
+              </motion.div>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <a href="/login" className="text-sm text-blue-600 hover:underline">¿Ya tienes una cuenta? Inicia sesión</a>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
-  );
+  )
 }
