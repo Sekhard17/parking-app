@@ -12,6 +12,8 @@ import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
 import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
 import router from 'next/router'
 import { supabase } from '@/utils/supabaseClient'
+console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+console.log('Supabase Anon Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export default function LoginComponent() {
   const [rut, setRut] = useState('')
