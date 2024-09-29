@@ -83,6 +83,7 @@ interface ValidationResponse {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200 flex flex-col items-center justify-center p-4">
+      <ToastContainer /> {/* Agrega el contenedor de Toastify */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
