@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
@@ -11,9 +11,7 @@ import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
 import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
 import router from 'next/router'
-import { supabase } from '@/utils/supabaseClient'
-console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-console.log('Supabase Anon Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+import { supabase } from '@/utils/supabaseClient';
 
 export default function LoginComponent() {
   const [rut, setRut] = useState('')
