@@ -46,32 +46,32 @@ export default function LoginComponent() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Login attempt with RUT:', rut)
+    e.preventDefault();
+    console.log('Login attempt with RUT:', rut);
 
     try {
-      const response = await fetch('http://localhost:5000/api/usuarios/login', { // Ruta corregida
+      const response = await fetch('/api/login', { // Cambia la ruta a la API correcta
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ rut, contrasena: password }), // Envía RUT y contraseña
-      })
-      
-      const data: ValidationResponse = await response.json()
+      });
+
+      const data = await response.json();
 
       if (response.ok) {
-        setError(null)
-        toast.success(data.message || 'Inicio de sesión exitoso') // Muestra la alerta de éxito
-        // Aquí puedes redirigir al usuario o guardar los datos del login en el estado global
+        setError(null);
+        toast.success(data.message || 'Inicio de sesión exitoso'); // Muestra la alerta de éxito
+        // Manejar el inicio de sesión exitoso (por ejemplo, redirigir)
       } else {
-        setError(data.error ?? null)
-        toast.error(data.error || 'Se produjo un error') // Muestra la alerta de error
+        setError(data.error ?? null);
+        toast.error(data.error || 'Se produjo un error'); // Muestra la alerta de error
       }
     } catch (error) {
-      console.error('Error al validar el RUT:', error)
-      setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.')
-      toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.') // Alerta de error general
+      console.error('Error al validar el RUT:', error);
+      setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
+      toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.'); // Alerta de error general
     }
   }
 
