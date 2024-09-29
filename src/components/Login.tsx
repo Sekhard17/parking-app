@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { User, Lock, LogIn, Car } from "lucide-react"
+import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
 import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
 
@@ -16,10 +17,11 @@ export default function LoginComponent() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  interface ValidationResponse {
-    error?: string
-    message?: string
-  }
+  // Definición del tipo para la respuesta de la API
+interface ValidationResponse {
+  error?: string; // Campo opcional para errores
+  message?: string; // Mensaje de éxito
+}
 
   const formatRut = (value: string) => {
     const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase()
@@ -81,7 +83,6 @@ export default function LoginComponent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200 flex flex-col items-center justify-center p-4">
-      <ToastContainer /> {/* Agrega el contenedor de Toastify */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -120,37 +121,67 @@ export default function LoginComponent() {
               transition={{ duration: 0.5, type: "spring", stiffness: 260, damping: 20 }}
               className="flex justify-center mb-6"
             >
-              <LogIn className="h-6 w-6" />
+              <Image
+                src="/images/sur.png"
+                alt="Sur Innova Logo"
+                width={200}
+                height={100}
+                className="h-20 w-auto"
+              />
             </motion.div>
-            <h2 className="text-center text-lg font-semibold">Iniciar Sesión</h2>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <Label htmlFor="rut" className="block mb-2">RUT</Label>
-                <Input
-                  type="text"
-                  id="rut"
-                  value={formattedRut}
-                  onChange={handleRutChange}
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="rut" className="text-sm font-medium text-gray-700">RUT</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="rut"
+                    type="text"
+                    placeholder="Ingrese su RUT"
+                    value={formattedRut}
+                    onChange={handleRutChange}
+                    className={`pl-10 w-full ${error ? 'border-red-500' : 'border-gray-300'}`}
+                    required
+                  />
+                </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
-              <div className="mb-4">
-                <Label htmlFor="password" className="block mb-2">Contraseña</Label>
-                <Input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">Contraseña</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Ingrese su contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 w-full"
+                    required
+                  />
+                </div>
               </div>
-              <CardFooter className="flex justify-center">
-                <Button type="submit">Iniciar Sesión</Button>
-              </CardFooter>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <LogIn className="mr-2 h-4 w-4" /> Iniciar Sesión
+                </Button>
+              </motion.div>
             </form>
           </CardContent>
+          <CardFooter className="flex justify-center">
+            <a href="#" className="text-sm text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
+          </CardFooter>
+          <CardFooter className="flex justify-center">
+            <a href="/registro" className="text-sm text-blue-600 hover:underline">Registrate</a>
+          </CardFooter>
         </Card>
       </motion.div>
     </div>
