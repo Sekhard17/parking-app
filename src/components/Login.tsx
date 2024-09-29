@@ -84,7 +84,7 @@ export default function LoginComponent() {
       if (data.rol === 'Administrador') {
         router.push('/dashboard-admin');
       } else {
-        router.push('/dashboard-operador');
+        router.push('/menu-operador');
       }
     } catch (error) {
       console.error('Error al validar el RUT:', error);
