@@ -6,7 +6,7 @@ export async function POST(request) {
   const { rut, contrasena } = await request.json(); // Lee el cuerpo de la solicitud
 
   try {
-    // Verificamos si el usuario existe con el RUT y la contraseña
+    // Verificamos si el usuario existe con el RUT
     const { data, error } = await supabase
       .from('usuarios')
       .select('*')
@@ -20,9 +20,14 @@ export async function POST(request) {
       throw new Error('Contraseña incorrecta');
     }
 
-    return NextResponse.json({ user: data }, { status: 200 });
+    // Devuelve el usuario y su rol
+    return NextResponse.json({ 
+      message: 'Inicio de sesión exitoso',
+      rol: data.rol, // Devuelve el rol del usuario
+      user: data 
+    }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Error al iniciar sesión' }, { status: 401 });
+    return NextResponse.json({ error: error.message || 'Error al iniciar sesión' }, { status: 401 });
   }
 }

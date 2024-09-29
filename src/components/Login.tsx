@@ -10,6 +10,7 @@ import { User, Lock, LogIn, Car } from "lucide-react"
 import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
 import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
+import router from 'next/router'
 
 export default function LoginComponent() {
   const [rut, setRut] = useState('')
@@ -18,10 +19,19 @@ export default function LoginComponent() {
   const [error, setError] = useState<string | null>(null)
 
   // Definición del tipo para la respuesta de la API
-interface ValidationResponse {
-  error?: string; // Campo opcional para errores
-  message?: string; // Mensaje de éxito
-}
+  interface User {
+    id: string;
+    rut: string;
+    nombre: string;
+    rol: string; // Asumiendo que tienes un campo 'rol' en tu tabla 'usuarios'
+  }
+
+  interface ValidationResponse {
+    error?: string; // Campo opcional para errores
+    message?: string; // Mensaje de éxito
+    user?: User; // Datos del usuario
+    rol?: string; // Rol del usuario
+  }
 
   const formatRut = (value: string) => {
     const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase()
@@ -52,28 +62,38 @@ interface ValidationResponse {
     console.log('Login attempt with RUT:', rut);
 
     try {
-      const response = await fetch('/api/login', { // Cambia la ruta a la API correcta
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rut, contrasena: password }), // Envía RUT y contraseña
+        body: JSON.stringify({ rut, contrasena: password }),
       });
 
-      const data = await response.json();
+      const data: ValidationResponse = await response.json();
 
       if (response.ok) {
         setError(null);
-        toast.success(data.message || 'Inicio de sesión exitoso'); // Muestra la alerta de éxito
-        // Manejar el inicio de sesión exitoso (por ejemplo, redirigir)
+        toast.success(data.message || 'Inicio de sesión exitoso');
+
+        // Almacena el rol y los datos del usuario
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('role', data.rol || '');
+
+        // Redirigir al dashboard según el rol
+        if (data.rol === 'Administrador') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/user/dashboard');
+        }
       } else {
         setError(data.error ?? null);
-        toast.error(data.error || 'Se produjo un error'); // Muestra la alerta de error
+        toast.error(data.error || 'Se produjo un error');
       }
     } catch (error) {
       console.error('Error al validar el RUT:', error);
       setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
-      toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.'); // Alerta de error general
+      toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
     }
   }
 
