@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { User, Lock, LogIn, Car } from "lucide-react"
-import Image from 'next/image'
+import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
+import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
 
 export default function LoginComponent() {
   const [rut, setRut] = useState('')
@@ -15,11 +16,10 @@ export default function LoginComponent() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Definición del tipo para la respuesta de la API
-interface ValidationResponse {
-  error?: string; // Campo opcional para errores
-  message?: string; // Mensaje de éxito
-}
+  interface ValidationResponse {
+    error?: string
+    message?: string
+  }
 
   const formatRut = (value: string) => {
     const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase()
@@ -46,32 +46,34 @@ interface ValidationResponse {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Login attempt with RUT:', rut);
-    
+    e.preventDefault()
+    console.log('Login attempt with RUT:', rut)
+
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('http://localhost:5000/api/usuarios/login', { // Ruta corregida
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rut: rut }),
-      });
+        body: JSON.stringify({ rut, contrasena: password }), // Envía RUT y contraseña
+      })
       
-      const data: ValidationResponse = await response.json(); // Asigna el tipo
-  
+      const data: ValidationResponse = await response.json()
+
       if (response.ok) {
-        setError(null);
-        console.log(data.message);
-        // Aquí puedes continuar con el login
+        setError(null)
+        toast.success(data.message || 'Inicio de sesión exitoso') // Muestra la alerta de éxito
+        // Aquí puedes redirigir al usuario o guardar los datos del login en el estado global
       } else {
-        setError(data.error ?? null); // Muestra el error en el frontend
+        setError(data.error ?? null)
+        toast.error(data.error || 'Se produjo un error') // Muestra la alerta de error
       }
     } catch (error) {
-      console.error('Error al validar el RUT:', error);
-      setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.');
+      console.error('Error al validar el RUT:', error)
+      setError('Se produjo un error al validar el RUT. Inténtalo de nuevo.')
+      toast.error('Se produjo un error al validar el RUT. Inténtalo de nuevo.') // Alerta de error general
     }
-  };
+  }
 
   useEffect(() => {
     setFormattedRut(formatRut(rut))
@@ -79,6 +81,7 @@ interface ValidationResponse {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200 flex flex-col items-center justify-center p-4">
+      <ToastContainer /> {/* Agrega el contenedor de Toastify */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,67 +120,37 @@ interface ValidationResponse {
               transition={{ duration: 0.5, type: "spring", stiffness: 260, damping: 20 }}
               className="flex justify-center mb-6"
             >
-              <Image
-                src="/images/sur.png"
-                alt="Sur Innova Logo"
-                width={200}
-                height={100}
-                className="h-20 w-auto"
-              />
+              <LogIn className="h-6 w-6" />
             </motion.div>
+            <h2 className="text-center text-lg font-semibold">Iniciar Sesión</h2>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="rut" className="text-sm font-medium text-gray-700">RUT</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  <Input
-                    id="rut"
-                    type="text"
-                    placeholder="Ingrese su RUT"
-                    value={formattedRut}
-                    onChange={handleRutChange}
-                    className={`pl-10 w-full ${error ? 'border-red-500' : 'border-gray-300'}`}
-                    required
-                  />
-                </div>
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <Label htmlFor="rut" className="block mb-2">RUT</Label>
+                <Input
+                  type="text"
+                  id="rut"
+                  value={formattedRut}
+                  onChange={handleRutChange}
+                  required
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">Contraseña</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Ingrese su contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 w-full"
-                    required
-                  />
-                </div>
+              <div className="mb-4">
+                <Label htmlFor="password" className="block mb-2">Contraseña</Label>
+                <Input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <LogIn className="mr-2 h-4 w-4" /> Iniciar Sesión
-                </Button>
-              </motion.div>
+              <CardFooter className="flex justify-center">
+                <Button type="submit">Iniciar Sesión</Button>
+              </CardFooter>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <a href="#" className="text-sm text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
-          </CardFooter>
-          <CardFooter className="flex justify-center">
-            <a href="/registro" className="text-sm text-blue-600 hover:underline">Registrate</a>
-          </CardFooter>
         </Card>
       </motion.div>
     </div>
