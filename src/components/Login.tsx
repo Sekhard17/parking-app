@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { User, Lock, LogIn, Car } from "lucide-react"
 import Image from 'next/image'
-import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
-import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
-import router from 'next/router'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useRouter } from 'next/router'; // Cambiado aquí
 import { supabase } from '@/utils/supabaseClient';
 
 export default function LoginComponent() {
@@ -19,20 +19,7 @@ export default function LoginComponent() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Definición del tipo para la respuesta de la API
-  interface User {
-    id: string;
-    rut: string;
-    nombre: string;
-    rol: string; // Asumiendo que tienes un campo 'rol' en tu tabla 'usuarios'
-  }
-
-  interface ValidationResponse {
-    error?: string; // Campo opcional para errores
-    message?: string; // Mensaje de éxito
-    user?: User; // Datos del usuario
-    rol?: string; // Rol del usuario
-  }
+  const router = useRouter(); // Inicialización del enrutador
 
   const formatRut = (value: string) => {
     const cleanedValue = value.replace(/[^0-9kK]/g, '').toUpperCase()
@@ -63,7 +50,6 @@ export default function LoginComponent() {
     console.log('Login attempt with RUT:', rut);
 
     try {
-      // Verificamos si el usuario existe con el RUT
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
@@ -72,15 +58,12 @@ export default function LoginComponent() {
 
       if (error || !data) throw new Error('Usuario no encontrado');
 
-      // Aquí puedes validar la contraseña de forma manual
       if (data.contrasena !== password) {
         throw new Error('Contraseña incorrecta');
       }
 
-      // Si la autenticación es exitosa
       toast.success('Inicio de sesión exitoso');
 
-      // Redirigir al dashboard según el rol
       if (data.rol === 'Administrador') {
         router.push('/dashboard-admin');
       } else {
