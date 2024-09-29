@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Switch } from "@/components/ui/switch"
 import { Car, LogOut, DollarSign, Search, FileText, User, Moon, Sun } from 'lucide-react'
 import Link from 'next/link'
+import { supabase } from '@/utils/supabaseClient' // Importar supabase
 
 type MenuItem = {
   title: string
@@ -23,6 +24,33 @@ const PanelControlOperador: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [userName, setUserName] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [showDialog, setShowDialog] = useState(false) // Para el diálogo
+
+  // Obtener la información de la sesión del usuario autenticado
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: userData } = await supabase
+            .from('usuarios')
+            .select('nombre, rol')
+            .eq('id', user.id)
+            .single()
+
+          if (userData) {
+            setUserName(userData.nombre)
+            setUserRole(userData.rol)
+          }
+        }
+      }
+    }
+
+    getSession()
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -30,39 +58,44 @@ const PanelControlOperador: React.FC = () => {
   }, [])
 
   const menuItems: MenuItem[] = [
-    { 
-      title: 'Ingreso de Vehículo', 
+    {
+      title: 'Ingreso de Vehículo',
       description: 'Registre la entrada de nuevos vehículos al estacionamiento.',
-      icon: <Car />, 
-      href: '/ingreso-vehiculo', 
+      icon: <Car />,
+      href: '/ingreso-vehiculo',
       color: 'bg-blue-500',
-      darkColor: 'bg-blue-700'
+      darkColor: 'bg-blue-700',
     },
-    { 
-      title: 'Salida de Vehículo', 
+    {
+      title: 'Salida de Vehículo',
       description: 'Procese la salida de vehículos y genere tickets de pago.',
-      icon: <LogOut />, 
-      href: '/salida-vehiculo', 
+      icon: <LogOut />,
+      href: '/salida-vehiculo',
       color: 'bg-purple-500',
-      darkColor: 'bg-purple-700'
+      darkColor: 'bg-purple-700',
     },
-    { 
-      title: 'Búsqueda de Deuda', 
+    {
+      title: 'Búsqueda de Deuda',
       description: 'Verifique deudas pendientes por patente de vehículo.',
-      icon: <Search />, 
-      href: '/busqueda-deuda', 
+      icon: <Search />,
+      href: '/busqueda-deuda',
       color: 'bg-teal-500',
-      darkColor: 'bg-teal-700'
+      darkColor: 'bg-teal-700',
     },
-    { 
-      title: 'Reportes', 
+    {
+      title: 'Reportes',
       description: 'Acceda a informes detallados y estadísticas del estacionamiento.',
-      icon: <FileText />, 
-      href: '/reportes', 
+      icon: <FileText />,
+      href: '/reportes',
       color: 'bg-orange-500',
-      darkColor: 'bg-orange-700'
+      darkColor: 'bg-orange-700',
     },
   ]
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    // Redirigir al usuario después del logout si es necesario
+  }
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} transition-colors duration-300`}>
@@ -76,12 +109,16 @@ const PanelControlOperador: React.FC = () => {
           <header className="flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-12">
             <div className="flex items-center space-x-4 mb-4 sm:mb-0">
               <Avatar className="h-12 w-12">
-                <AvatarImage src="/placeholder.svg" alt="Operador" />
+                <AvatarImage src="/placeholder.svg" alt={userName ?? 'Operador'} />
                 <AvatarFallback>OP</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Juan Pérez</h2>
-                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Operador de Turno</p>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  {userName ?? 'Juan Pérez'}
+                </h2>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {userRole ?? 'Operador de Turno'}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -92,88 +129,64 @@ const PanelControlOperador: React.FC = () => {
                 <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   {currentTime.toLocaleDateString('es-CL')}
                 </p>
-                                                                                                  </div>
-                                                                                                  <Switch
-                                                                                                                checked={isDarkMode}
-                                                                                                                onCheckedChange={setIsDarkMode}
-                                                                                                                className="ml-4"
-                                                                                                  >
-                                                                                                                {isDarkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                                                                                                  </Switch>
-                                                                                    </div>
-                                                                      </header>
-
-                                                                      <main>
-            <h1 className={`text-4xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-8 text-center`}>
-              Panel de Control
-            </h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {menuItems.map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <Card className={`overflow-hidden hover:shadow-lg transition-shadow duration-300 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    <CardContent className="p-0">
-                      <Button
-                        className={`w-full h-full p-6 ${isDarkMode ? item.darkColor : item.color} hover:opacity-90 transition-opacity duration-300 flex items-start text-left`}
-                        onClick={() => setSelectedItem(item)}
-                      >
-                        <div className="flex-1">
-                          <h3 className="text-2xl font-semibold text-white mb-2">{item.title}</h3>
-                          <p className="text-white/80">{item.description}</p>
-                        </div>
-                        {item.icon && (
-                          <div className="ml-4">
-                            {React.cloneElement(item.icon as React.ReactElement, { size: 48, className: "text-white/90" })}
-                          </div>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+              </div>
+              <Switch
+                checked={isDarkMode}
+                onCheckedChange={(checked) => setIsDarkMode(checked)}
+                className="ml-4"
+              />
+              <Button variant="ghost" onClick={() => setShowDialog(true)}>
+                <User className="text-gray-500 dark:text-gray-300" />
+              </Button>
             </div>
-          </main>
+          </header>
 
-          <footer className={`mt-12 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            <p className="text-lg font-semibold">Sur Innova Limitada</p>
-            <p className="mt-1">ParkSmart - Gestión Inteligente de Estacionamientos</p>
-            <p className="mt-1">Desarrollado por Spectrum Code Software</p>
-          </footer>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {menuItems.map((item, index) => (
+              <Link key={index} href={item.href}>
+                <Card
+                  onClick={() => setSelectedItem(item)}
+                  className={`cursor-pointer ${isDarkMode ? item.darkColor : item.color} transition-transform transform hover:scale-105`}
+                >
+                  <CardContent className="flex items-center space-x-4 p-4">
+                    {item.icon}
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                      <p className="text-sm text-gray-200">{item.description}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </motion.div>
-
-        <AnimatePresence>
-          {selectedItem && selectedItem.icon && (
-            <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-              <DialogContent className={`sm:max-w-[425px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold flex items-center">
-                    {React.cloneElement(selectedItem.icon as React.ReactElement, { className: "mr-2" })}
-                    {selectedItem.title}
-                  </DialogTitle>
-                  <DialogDescription className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    {selectedItem.description}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4">
-                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>¿Desea continuar con esta operación?</p>
-                  <div className="flex justify-end space-x-4 mt-4">
-                    <Button variant="outline" onClick={() => setSelectedItem(null)}>
-                      Cancelar
-                    </Button>
-                    <Link href={selectedItem.href} passHref>
-                      <Button className={isDarkMode ? selectedItem.darkColor : selectedItem.color}>Continuar</Button>
-                    </Link>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Dialog para mostrar información adicional */}
+      <AnimatePresence>
+        {showDialog && (
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Perfil del Operador</DialogTitle>
+                <DialogDescription>
+                  {userName ? (
+                    <>
+                      <p>Nombre: {userName}</p>
+                      <p>Rol: {userRole}</p>
+                    </>
+                  ) : (
+                    <p>Cargando información del operador...</p>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              <Button variant="ghost" onClick={handleLogout}>
+                Cerrar Sesión
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
