@@ -1,4 +1,4 @@
-import { supabase } from '../../../backend/src/utils/supabaseClient'; // Ajusta la ruta si es necesario
+import { supabase } from '@/utils/supabaseClient';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
