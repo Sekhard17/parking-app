@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { ToastContainer, toast } from 'react-toastify' // Importa Toastify
 import 'react-toastify/dist/ReactToastify.css' // Importa estilos de Toastify
 import router from 'next/router'
+import { supabase } from '@/utils/supabaseClient';
 
 export default function LoginComponent() {
   const [rut, setRut] = useState('')
@@ -62,33 +63,28 @@ export default function LoginComponent() {
     console.log('Login attempt with RUT:', rut);
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ rut, contrasena: password }),
-      });
+      // Verificamos si el usuario existe con el RUT
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('rut', rut)
+        .single();
 
-      const data: ValidationResponse = await response.json();
+      if (error || !data) throw new Error('Usuario no encontrado');
 
-      if (response.ok) {
-        setError(null);
-        toast.success(data.message || 'Inicio de sesión exitoso');
+      // Aquí puedes validar la contraseña de forma manual
+      if (data.contrasena !== password) {
+        throw new Error('Contraseña incorrecta');
+      }
 
-        // Almacena el rol y los datos del usuario
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('role', data.rol || '');
+      // Si la autenticación es exitosa
+      toast.success('Inicio de sesión exitoso');
 
-        // Redirigir al dashboard según el rol
-        if (data.rol === 'Administrador') {
-          router.push('/admin/dashboard');
-        } else {
-          router.push('/user/dashboard');
-        }
+      // Redirigir al dashboard según el rol
+      if (data.rol === 'Administrador') {
+        router.push('/dashboard-admin');
       } else {
-        setError(data.error ?? null);
-        toast.error(data.error || 'Se produjo un error');
+        router.push('/dashboard-operador');
       }
     } catch (error) {
       console.error('Error al validar el RUT:', error);
