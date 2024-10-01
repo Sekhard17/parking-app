@@ -50,7 +50,7 @@ const IngresoVehiculo = () => {
       setError('')
       setSuccess('')
 
-      const response = await fetch('/api/vehiculos/ingreso', {
+      const response = await fetch('/api/ingreso-vehiculo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
