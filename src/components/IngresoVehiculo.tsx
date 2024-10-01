@@ -52,27 +52,32 @@ const IngresoVehiculo = () => {
       setLoading(true);
       setError('');
       setSuccess('');
-
+  
       // Obtener el usuario RUT del contexto o autenticación
       const usuarioRut = '12345678-9'; 
-
+  
+      // Verificar si el usuario existe
       const { data: usuarioData, error: usuarioError } = await supabase
         .from('usuarios')
         .select('*')
         .eq('rut', usuarioRut)
         .single();
-
+  
       if (usuarioError || !usuarioData) throw new Error('Usuario no encontrado');
-
+  
+      // Verificar si el vehículo ya está registrado
       const { data: vehiculoData, error: vehiculoError } = await supabase
         .from('vehiculos')
         .select('*')
         .eq('patente', patente)
         .is('hora_salida', null)
         .single();
-
+  
+      if (vehiculoError) throw new Error('Error al verificar el vehículo');
+      
       if (vehiculoData) throw new Error('El vehículo ya está registrado en el estacionamiento');
-
+  
+      // Registrar la entrada del vehículo
       const { error: ingresoError } = await supabase
         .from('vehiculos')
         .insert([
@@ -83,9 +88,9 @@ const IngresoVehiculo = () => {
             created_at: new Date(),
           },
         ]);
-
+  
       if (ingresoError) throw new Error('Error al registrar la entrada del vehículo');
-
+  
       setSuccess('Vehículo registrado exitosamente');
       setPatente('');
       setIsValid(false);
@@ -95,13 +100,14 @@ const IngresoVehiculo = () => {
       setLoading(false);
     }
   };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
       registrarVehiculo();
     }
   };
+  
 
 
   return (
