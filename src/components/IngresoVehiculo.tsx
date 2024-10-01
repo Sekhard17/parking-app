@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Car, Calendar, Clock, Ticket } from 'lucide-react'
-import { supabase } from '@/utils/supabaseClient'
+import { supabase } from '@/utils/supabaseClient';
+import { set } from 'date-fns'
 
 const patenteRegex = /^[A-Z]{2}-[A-Z]{2}-\d{2}$|^[A-Z]{2}-\d{2}-\d{2}$/
 
@@ -17,6 +18,7 @@ const IngresoVehiculo = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [usuarioRut, setUsuarioRut] = useState('12345678-9')
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDateTime(new Date()), 1000)
@@ -47,52 +49,36 @@ const IngresoVehiculo = () => {
 
   const registrarVehiculo = async () => {
     try {
-      setLoading(true);
-      setError('');
-      setSuccess('');
+      setLoading(true)
+      setError('')
+      setSuccess('')
 
-      // Obtener el usuario RUT del contexto o autenticación
-      const usuarioRut = '12345678-9'; 
+      const response = await fetch('/api/vehiculos/ingreso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          patente,
+          usuario_rut: '12345678-9', // Aquí deberías obtener el usuario RUT del contexto o autenticación
+        }),
+      })
 
-      const { data: usuarioData, error: usuarioError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('rut', usuarioRut)
-        .single();
+      const result = await response.json()
 
-      if (usuarioError || !usuarioData) throw new Error('Usuario no encontrado');
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al registrar el vehículo')
+      }
 
-      const { data: vehiculoData, error: vehiculoError } = await supabase
-        .from('vehiculos')
-        .select('*')
-        .eq('patente', patente)
-        .is('hora_salida', null)
-        .single();
-
-      if (vehiculoData) throw new Error('El vehículo ya está registrado en el estacionamiento');
-
-      const { error: ingresoError } = await supabase
-        .from('vehiculos')
-        .insert([
-          {
-            patente,
-            usuario_rut: usuarioRut,
-            hora_entrada: new Date(),
-            created_at: new Date(),
-          },
-        ]);
-
-      if (ingresoError) throw new Error('Error al registrar la entrada del vehículo');
-
-      setSuccess('Vehículo registrado exitosamente');
-      setPatente('');
-      setIsValid(false);
+      setSuccess('Vehículo registrado exitosamente')
+      setPatente('')
+      setIsValid(false)
     } catch (error: any) {
-      setError(error.message || 'Error desconocido');
+      setError(error.message || 'Error desconocido')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

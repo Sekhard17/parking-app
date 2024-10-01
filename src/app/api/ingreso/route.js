@@ -8,13 +8,13 @@ export async function POST(request) {
 
   try {
     // Verificar si el usuario existe
-    const { data: usuarioData, error: usuarioError } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('rut', usuario_rut)
-      .single();
+    // const { data: usuarioData, error: usuarioError } = await supabase
+    //   .from('usuarios')
+    //   .select('*')
+    //   .eq('rut', usuario_rut)
+    //   .single();
 
-    if (usuarioError || !usuarioData) throw new Error('Usuario no encontrado');
+    // if (usuarioError || !usuarioData) throw new Error('Usuario no encontrado');
 
     // Verificar si el vehículo ya está estacionado
     const { data: vehiculoData, error: vehiculoError } = await supabase
