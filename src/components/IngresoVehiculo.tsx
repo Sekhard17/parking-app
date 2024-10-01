@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Car, Calendar, Clock, Ticket } from 'lucide-react'
+import { supabase } from '@/utils/supabaseClient';
 
 const patenteRegex = /^[A-Z]{2}-[A-Z]{2}-\d{2}$|^[A-Z]{2}-\d{2}-\d{2}$/
 
@@ -50,7 +51,7 @@ const IngresoVehiculo = () => {
       setError('')
       setSuccess('')
 
-      const response = await fetch('/api/ingreso-vehiculo', {
+      const response = await fetch('/api/ingreso', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
