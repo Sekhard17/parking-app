@@ -13,6 +13,9 @@ const IngresoVehiculo = () => {
   const [patente, setPatente] = useState('')
   const [isValid, setIsValid] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState(new Date())
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDateTime(new Date()), 1000)
@@ -41,14 +44,39 @@ const IngresoVehiculo = () => {
     setIsValid(patenteRegex.test(formatted))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isValid) {
-      console.log('Generando ticket para:', patente)
-      setPatente('')
-      setIsValid(false)
+  
+  const resgistrarVehiculo = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      setSuccess('')
+
+      const response = await fetch('/api/vehiculos/ingreso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patente, usuario_rut: '12345678-9' }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al registrar vehículo')
     }
-  }
+    setSuccess('Vehículo ingresado correctamente')
+    setPatente('')
+    setIsValid(false)
+    catch (error: any) {
+      setError(error.message || 'Existe algun error')
+    } finally {
+      setLoading(false)
+    }
+    }
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault()
+      if (isValid) {
+        console.log('Generando ticket para:', patente)
+        registrarVehiculo()
+      }
+    }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-4">
