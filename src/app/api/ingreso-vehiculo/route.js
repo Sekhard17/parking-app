@@ -2,6 +2,7 @@
 import { supabase } from '@/utils/supabaseClient';
 import { NextResponse } from 'next/server';
 
+//Función para registrar la entrada de un vehículo
 export async function POST(request) {
   const { patente, usuario_rut } = await request.json();
 
