@@ -56,6 +56,9 @@ const IngresoVehiculo = () => {
       // Obtener el usuario RUT del contexto o autenticación
       const usuarioRut = '12345678-9'; 
   
+      // Asegúrate de que el formato de usuarioRut es correcto
+      console.log("RUT del usuario:", usuarioRut);
+  
       // Verificar si el usuario existe
       const { data: usuarioData, error: usuarioError } = await supabase
         .from('usuarios')
@@ -63,7 +66,12 @@ const IngresoVehiculo = () => {
         .eq('rut', usuarioRut)
         .single();
   
-      if (usuarioError || !usuarioData) throw new Error('Usuario no encontrado');
+      if (usuarioError) {
+        console.error('Error al obtener el usuario:', usuarioError);
+        throw new Error('Usuario no encontrado o error de consulta');
+      }
+  
+      if (!usuarioData) throw new Error('Usuario no encontrado');
   
       // Verificar si el vehículo ya está registrado
       const { data: vehiculoData, error: vehiculoError } = await supabase
@@ -73,8 +81,11 @@ const IngresoVehiculo = () => {
         .is('hora_salida', null)
         .single();
   
-      if (vehiculoError) throw new Error('Error al verificar el vehículo');
-      
+      if (vehiculoError) {
+        console.error('Error al verificar el vehículo:', vehiculoError);
+        throw new Error('Error al verificar el vehículo');
+      }
+  
       if (vehiculoData) throw new Error('El vehículo ya está registrado en el estacionamiento');
   
       // Registrar la entrada del vehículo
@@ -101,13 +112,13 @@ const IngresoVehiculo = () => {
     }
   };
   
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
       registrarVehiculo();
     }
   };
-  
 
 
   return (
