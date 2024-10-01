@@ -80,7 +80,9 @@ const IngresoVehiculo = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (isValid) {
-      registrarVehiculo()
+      console.log('Generando ticket para:', patente)
+      setPatente('')
+      setIsValid(false)
     }
   }
 
