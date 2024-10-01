@@ -1,5 +1,5 @@
 'use client'
-
+import { useRouter } from 'next/navigation' // Importar desde next/navigation
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { supabase } from '@/utils/supabaseClient'
 
 const revenueData = [
   { name: 'Lun', value: 400000 },
@@ -39,8 +40,10 @@ export default function DashboardAdmin() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [selectedOperator, setSelectedOperator] = useState('all')
+  const [currentUser, setCurrentUser] = useState(null); // Para almacenar el usuario actual
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
+  const router = useRouter() // Inicialización del enrutador
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -58,6 +61,16 @@ export default function DashboardAdmin() {
     document.documentElement.classList.toggle('dark')
   }
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error signing out:", error);
+    } else {
+      router.push("/login"); // Redirigir a la página de login
+    }
+  };
+
+    
   const sidebarItems = [
     { category: "General", items: [
       { icon: Home, label: 'Inicio' },

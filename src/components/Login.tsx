@@ -47,7 +47,7 @@ export default function LoginComponent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt with RUT:', rut);
+    console.log('Intento de inicio de sesión con RUT:', rut);
 
     try {
       const { data, error } = await supabase
