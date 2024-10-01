@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Car, Calendar, Clock, Ticket } from 'lucide-react'
 import { supabase } from '@/utils/supabaseClient';
+import { set } from 'date-fns'
 
 const patenteRegex = /^[A-Z]{2}-[A-Z]{2}-\d{2}$|^[A-Z]{2}-\d{2}-\d{2}$/
 
@@ -17,6 +18,7 @@ const IngresoVehiculo = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [usuarioRut, setUsuarioRut] = useState('12345678-9')
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDateTime(new Date()), 1000)
@@ -45,38 +47,27 @@ const IngresoVehiculo = () => {
     setIsValid(patenteRegex.test(formatted))
   }
 
-  const registrarVehiculo = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      setSuccess('')
+  const registrarVehiculos = async () => { 
+    setLoading(true)
+    setError('')
+    setSuccess('')
 
-      const response = await fetch('/api/ingreso', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          patente,
-          usuario_rut: '12345678-9', // Aquí deberías obtener el usuario RUT del contexto o autenticación
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Error al registrar el vehículo')
+  try {
+    const { data, error } = await supabase
+      .from('vehiculos')
+      .insert([
+        { patente, usuario_rut: usuarioRut, hora_entrada: new Date() },
+      ])
+      if (error) throw error;
+        setSuccess('Vehículo ingresado correctamente')
+    } catch (error) {
+        setError((error as Error).message || 'Error al registrar el vehículo');
+      
+        } finally {
+          setLoading(false)
+        }
       }
-
-      setSuccess('Vehículo registrado exitosamente')
-      setPatente('')
-      setIsValid(false)
-    } catch (error: any) {
-      setError(error.message || 'Error desconocido')
-    } finally {
-      setLoading(false)
-    }
-  }
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
